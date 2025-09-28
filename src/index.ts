@@ -14,8 +14,14 @@ const [
     ,
     API_HOST = "https://www.googleapis.com/customsearch",
     API_KEY,
-    CX
+    CX,
+    SITE_RESTRICTED_ARG
 ] = process.argv;
+
+// Parse optional siteRestricted CLI flag; default to true when omitted.
+const SITE_RESTRICTED_DEFAULT = SITE_RESTRICTED_ARG !== undefined
+    ? SITE_RESTRICTED_ARG.toLowerCase() === "true"
+    : true;
 
 const server = new Server(
     {
@@ -130,7 +136,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             params.append("start", "1");
         }
 
-        const siteRestricted = args.siteRestricted !== undefined ? args.siteRestricted : true;
+        const siteRestricted = args.siteRestricted !== undefined ? args.siteRestricted : SITE_RESTRICTED_DEFAULT;
         const endpoint = siteRestricted ? "/v1/siterestrict" : "/v1";
         const url = `${API_HOST}${endpoint}?${params.toString()}`;
         const response = await fetch(url, {
