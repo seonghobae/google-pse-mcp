@@ -68,6 +68,22 @@ If you are using [Cline](https://github.com/saoudrizwan/cline), add the followin
 Don't forget to replace `<api_key>` and `<cx>` with your credentials in the configuration above.
 You can also provide an optional `<siteRestricted>` flag (`true` or `false`) as the last argument to control which Google Custom Search endpoint is used. If omitted, it defaults to `false`.
 
+중요(브레이킹 체인지): siteRestricted 기본값이 true에서 false로 변경되었습니다. 마지막 인자를 생략한 기존 설정은 /v1/siterestrict에서 /v1로 동작이 변경됩니다. 이전 동작을 유지하려면 siteRestricted를 명시적으로 true로 설정하세요.
+
+간단 예시(이전 동작 유지):
+```jsonc
+// VS Code Copilot args 마지막 인자
+"true" // /v1/siterestrict 유지
+```
+
+권장 롤아웃/마이그레이션 단계 요약:
+- 기존 mcpServers/설정을 점검해 사이트 제한 동작에 의존하는지 확인
+- 사이트 제한이 필요한 설정에는 `<siteRestricted>`를 "true"로 명시적으로 추가
+- 전체 웹 검색이 필요하면 `<siteRestricted>`를 생략하거나 "false"로 명시
+- 개발/스테이징에서 검색 결과와 엔드포인트(/v1 vs /v1/siterestrict)를 확인 후 프로덕션에 적용
+
+자세한 예시와 설명은 아래 "Breaking Change: siteRestricted 기본값 변경(true → false)" 섹션을 참고하세요.
+
 
 ## Breaking Change: siteRestricted 기본값 변경(true → false)
 
