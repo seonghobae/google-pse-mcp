@@ -2,6 +2,7 @@
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
+import type { CallToolRequest } from "@modelcontextprotocol/sdk/types.js";
 import fetch from "node-fetch";
 
 // Polyfill global fetch for Node < 18
@@ -80,7 +81,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
     };
 });
 
-server.setRequestHandler(CallToolRequestSchema, async (request: any) => {
+server.setRequestHandler(CallToolRequestSchema, async (request: CallToolRequest) => {
     if (!request.params.arguments) {
         throw new Error("No arguments provided");
     }
