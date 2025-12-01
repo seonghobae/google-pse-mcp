@@ -89,6 +89,18 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
     };
 });
 
+type SearchToolArguments = {
+    q: string;
+    page?: number;
+    size?: number;
+    lr?: string;
+    safe?: boolean;
+    sort?: string;
+    compat?: boolean;
+    version?: number | string;
+    siteRestricted?: boolean;
+};
+
 server.setRequestHandler(CallToolRequestSchema, async (request: CallToolRequest) => {
     if (!request.params.arguments) {
         throw new Error("No arguments provided");
@@ -96,7 +108,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request: CallToolRequest)
 
     // --- search tool implementation ---
     if (request.params.name === "search") {
-        const args = request.params.arguments as any;
+        const args = request.params.arguments as SearchToolArguments;
         const {
             q,
             page = 1,
