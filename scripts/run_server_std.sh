@@ -32,8 +32,8 @@ SITE_RESTRICTED="false"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
-if [[ ! -x "build/index.js" ]]; then
-  echo "[run_server_std] build/index.js not found or not executable. Building..."
+if [[ ! -f "build/index.js" ]]; then
+  echo "[run_server_std] build/index.js not found. Building..."
   npm run build
 fi
 
