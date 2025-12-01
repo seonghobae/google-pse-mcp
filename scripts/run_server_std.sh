@@ -39,4 +39,4 @@ fi
 
 echo "[run_server_std] Starting MCP server (standard /v1) with siteRestricted=false"
 echo "[run_server_std] API_HOST=${API_HOST}"
-exec ./build/index.js "${API_HOST}" "${API_KEY}" "${CX}" "${SITE_RESTRICTED}"
+exec node ./build/index.js "${API_HOST}" "${API_KEY}" "${CX}" "${SITE_RESTRICTED}"
