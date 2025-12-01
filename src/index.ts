@@ -73,6 +73,14 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
                             type: "boolean",
                             description: "If true, use the Site Restricted API endpoint (/v1/siterestrict). If false, use the standard API endpoint (/v1). Default: false (can be overridden via CLI flag or per-call argument)."
                         },
+                        compat: {
+                            type: "boolean",
+                            description: "Emit legacy array-only response for backward compatibility. If true, the response will be the items array."
+                        },
+                        version: {
+                            type: ["integer", "string"],
+                            description: "API response version selector: 1 returns legacy array-only response; 2 returns structured { items, meta } response. Default: 2."
+                        },
                     },
                     required: ["q"]
                 }
@@ -95,7 +103,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request: CallToolRequest)
             size = 10,
             lr,
             safe = false,
-            sort
+            sort,
+            compat = false,
+            version
         } = args;
 
         if (!q) {
@@ -177,13 +187,16 @@ server.setRequestHandler(CallToolRequestSchema, async (request: CallToolRequest)
 
         const result = await response.json() as { items?: any[]; searchInformation?: { totalResults?: string } };
 
-        // Return items and meta information
+        // Return items and meta information, preserve backward compatibility if requested
         const items = result?.items ?? [];
         const meta = result?.searchInformation ?? {};
+        const isMetaEmpty = !meta || (Object.keys(meta).length === 0) || (typeof meta.totalResults === "undefined");
+        const useLegacy = Boolean(compat) || (version === 1 || version === "1") || isMetaEmpty;
+
         return {
             content: [{
                 type: "text",
-                text: JSON.stringify({ items, meta }, null, 2)
+                text: JSON.stringify(useLegacy ? items : { items, meta }, null, 2)
             }]
         };
     }
