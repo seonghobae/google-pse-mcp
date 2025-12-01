@@ -151,6 +151,34 @@ Migration 예시
 - 3) 전체 웹 검색이 필요하면 `<siteRestricted>`를 생략하거나 "false"로 명시
 - 4) 개발/스테이징에서 검색 결과와 엔드포인트(/v1 vs /v1/siterestrict)를 확인 후 프로덕션에 적용
 
+## Breaking Change: 응답 형식 변경(items 배열 → { items, meta })
+
+이 버전부터 `search` 도구의 응답 기본 형식이 기존 `items` 배열에서 `{"items": [...], "meta": {...}}` 구조로 변경되었습니다. 이는 브레이킹 체인지이며, 아래 방법으로 역호환을 유지할 수 있습니다.
+
+- 역호환 유지 방법:
+  - `arguments.compat = true` 전달 시 기존 배열(`items`)만 반환
+  - `arguments.version = 1` 전달 시 기존 배열만 반환
+  - `meta`가 비어있는 경우(검색 정보가 없는 경우) 자동으로 기존 배열 응답을 반환
+- 기본 동작은 구조화된 객체 `{ items, meta }`를 반환합니다.
+
+마이그레이션 예시:
+```json
+// 기본(새 구조)
+{ "q": "ai", "size": 5 }
+// 또는
+{ "q": "ai", "size": 5, "version": 2 }
+
+// 레거시 배열 유지(옵션1)
+{ "q": "ai", "compat": true }
+
+// 레거시 배열 유지(옵션2)
+{ "q": "ai", "version": 1 }
+```
+
+Release Notes / Versioning:
+- SemVer: 본 변경은 브레이킹 체인지이므로 다음 릴리스에서 MAJOR 버전 증가(예: 1.0.0) 권고
+- API 버저닝: MCP 도구 특성상 HTTP 헤더 기반 버저닝은 적용되지 않으며, 본 서버는 인자 기반 버전 선택(`version` 파라미터)을 제공합니다. 필요 시 별도의 버전드 엔드포인트/도구 제공을 고려하십시오.
+
 ## Available Tools
 
 This MCP server provides the following tool:
@@ -165,6 +193,12 @@ This MCP server provides the following tool:
      - `safe` (boolean, optional): Enable safe search filtering
      - `lr` (string, optional): Restrict search to a particular language (e.g., lang_en)
      - `siteRestricted` (boolean, optional): Use the Site Restricted API endpoint; defaults to false unless overridden via CLI flag
+     - `compat` (boolean, optional): 이전 클라이언트를 위한 레거시 배열 응답을 강제합니다(`true` 시 `items` 배열만 반환).
+     - `version` (integer|string, optional): 1은 레거시 배열, 2는 구조화된 `{ items, meta }` 응답. 기본값은 2.
+
+   - 응답 형식:
+     - 기본: `{ "items": [...], "meta": { "totalResults": "..." } }`
+     - 역호환(배열): `[...]` (`compat=true`, `version=1`, 또는 `meta`가 비어있는 경우 배열로 반환)
 
 ## Example Usage
 
